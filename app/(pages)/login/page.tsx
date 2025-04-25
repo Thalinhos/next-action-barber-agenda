@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { loginAction } from './action';
 import { redirect } from 'next/navigation';
 import GoogleBtn from './components/googleBtn/googleBtn';
+import RegisterBtn from './components/registerBtn/page';
 
 
 export default function Login() {
@@ -17,7 +18,7 @@ export default function Login() {
   return (
     <div className="page">
       <h1>Login</h1>
-      <form action={formAction}>
+      <form action={formAction} method='POST'>
         <label>
           Username:
           <input type="text" name="username" required />
@@ -31,6 +32,7 @@ export default function Login() {
         <button type="submit">Login</button>
         {state?.message && <p>{state?.message}</p>}
       </form>
+      <RegisterBtn/>
       <GoogleBtn/>
     </div>
   );

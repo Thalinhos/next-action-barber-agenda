@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SHOPKEEPER
+  CLIENT
+}
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
+  name      String
+  password  String?
+  role      Role      @default(CLIENT)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  services  Service[] @relation(name: "ServiceProvider")
+  bookings  Booking[] @relation(name: "ClientBookings")
+}
+
+model Service {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  price       Float
+  duration    Int // Duração em minutos
+  providerId  String    @db.ObjectId
+  provider    User      @relation(name: "ServiceProvider", fields: [providerId], references: [id])
+  bookings    Booking[] @relation(name: "ServiceBookings")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Booking {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  serviceId   String        @db.ObjectId
+  service     Service       @relation(name: "ServiceBookings", fields: [serviceId], references: [id])
+  clientId    String        @db.ObjectId
+  client      User          @relation(name: "ClientBookings", fields: [clientId], references: [id])
+  scheduledAt DateTime
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
